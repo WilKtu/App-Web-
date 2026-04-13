@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metas — Juntos llegamos más lejos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,700;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e0c;
+    --surface: #1a1916;
+    --surface2: #222120;
+    --border: #2e2c29;
+    --gold: #d4a84b;
+    --gold-light: #e8c97a;
+    --gold-dim: rgba(212, 168, 75, 0.15);
+    --text: #f0ece4;
+    --text-muted: #7a7670;
+    --text-dim: #4a4844;
+    --green: #5a9e6f;
+    --green-dim: rgba(90, 158, 111, 0.15);
+    --red: #b85c4a;
+    --red-dim: rgba(184, 92, 74, 0.15);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* --- NOISE TEXTURE --- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* --- HEADER --- */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(15, 14, 12, 0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--gold);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { font-style: italic; }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px 14px 4px 4px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-size: 14px;
+  }
+  .user-chip:hover { border-color: var(--gold); }
+  .user-chip img {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* --- BUTTONS --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: #0f0e0c;
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-danger {
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    color: var(--red);
+  }
+  .btn-danger:hover { background: var(--red); color: white; }
+  .btn-sm { padding: 5px 12px; font-size: 13px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* --- LAYOUT --- */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  /* --- SECTION TITLES --- */
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .section-subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  /* --- TABS --- */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px;
+    width: fit-content;
+    margin-bottom: 32px;
+  }
+  .tab {
+    padding: 7px 20px;
+    border-radius: 100px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--gold);
+    color: #0f0e0c;
+    font-weight: 500;
+  }
+
+  /* --- CARDS --- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border); }
+
+  /* --- GOALS GRID --- */
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .goal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .goal-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+  .goal-card.done::before { background: var(--green); }
+  .goal-card.done { border-color: rgba(90, 158, 111, 0.25); }
+
+  .goal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .goal-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  .goal-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .goal-status.done {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid rgba(90, 158, 111, 0.3);
+  }
+  .goal-status.pending {
+    background: var(--gold-dim);
+    color: var(--gold);
+    border: 1px solid rgba(212, 168, 75, 0.3);
+  }
+
+  /* --- USERS IN GOALS VIEW --- */
+  .user-goals-section {
+    margin-bottom: 32px;
+  }
+  .user-goals-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .user-goals-header img {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+  .user-goals-name {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 300;
+  }
+  .user-goals-count {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* --- RANKING --- */
+  .ranking-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    transition: border-color 0.2s;
+  }
+  .ranking-item.rank-1 { border-color: var(--gold); background: rgba(212, 168, 75, 0.05); }
+  .ranking-item.rank-2 { border-color: rgba(192, 192, 192, 0.3); }
+  .ranking-item.rank-3 { border-color: rgba(180, 115, 60, 0.3); }
+
+  .rank-num {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    width: 32px;
+    text-align: center;
+    color: var(--text-dim);
+  }
+  .rank-1 .rank-num { color: var(--gold); }
+  .rank-2 .rank-num { color: #c0c0c0; }
+  .rank-3 .rank-num { color: #b4733c; }
+
+  .rank-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+  }
+  .rank-1 .rank-avatar { border-color: var(--gold); }
+
+  .rank-info { flex: 1; }
+  .rank-name { font-weight: 500; font-size: 15px; }
+  .rank-score { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+  .rank-bar-wrap {
+    width: 120px;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .rank-bar {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 10px;
+    transition: width 0.6s ease;
+  }
+
+  /* --- ADMIN PANEL --- */
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 700px) { .admin-grid { grid-template-columns: 1fr; } }
+
+  .admin-section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* --- FORM --- */
+  .form-group { margin-bottom: 16px; }
+  label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  input[type="text"], textarea, input[type="file"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* --- MODAL --- */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 440px;
+    transform: scale(0.96);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+
+  .modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 6px;
+  }
+  .modal-subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* --- AVATAR UPLOAD --- */
+  .avatar-upload {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .avatar-preview {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .avatar-upload-btn {
+    font-size: 13px;
+    color: var(--gold);
+    cursor: pointer;
+    background: none;
+    border: 1px dashed var(--gold);
+    padding: 6px 14px;
+    border-radius: 100px;
+    transition: all 0.2s;
+  }
+  .avatar-upload-btn:hover { background: var(--gold-dim); }
+
+  /* --- USERS LIST (admin) --- */
+  .users-list { display: flex; flex-direction: column; gap: 8px; }
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+  }
+  .user-row img {
+    width: 32px; height: 32px;
+    border-radius: 50%; object-fit: cover;
+  }
+  .user-row-name { flex: 1; font-size: 14px; }
+  .user-row-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: var(--gold-dim);
+    color: var(--gold);
+    border: 1px solid rgba(212,168,75,0.3);
+  }
+
+  /* --- GOAL ADMIN ROW --- */
+  .goal-admin-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .goal-admin-info { flex: 1; }
+  .goal-admin-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .goal-admin-desc { font-size: 12px; color: var(--text-muted); }
+  .goal-admin-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+  .toggle-btn {
+    width: 36px; height: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-btn.on { background: var(--green); border-color: var(--green); }
+  .toggle-btn::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+    transition: left 0.2s;
+  }
+  .toggle-btn.on::after { left: 18px; }
+
+  /* --- PROFILE PAGE --- */
+  .profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 40px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .profile-avatar {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--gold);
+  }
+  .profile-name {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+  .profile-stats { display: flex; gap: 20px; margin-top: 10px; }
+  .profile-stat { text-align: center; }
+  .profile-stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    color: var(--gold);
+  }
+  .profile-stat-label { font-size: 12px; color: var(--text-muted); }
+
+  /* --- LANDING / LOGIN --- */
+  #landing-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .landing-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--gold);
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .landing-logo em { font-style: italic; }
+
+  .landing-tagline {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-bottom: 48px;
+  }
+
+  .landing-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 500px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 480px) { .landing-cards { grid-template-columns: 1fr; } }
+
+  .landing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .landing-card:hover { border-color: var(--gold); background: rgba(212,168,75,0.04); }
+  .landing-card-icon { font-size: 28px; margin-bottom: 10px; }
+  .landing-card-title { font-family: 'Fraunces', serif; font-size: 18px; margin-bottom: 4px; }
+  .landing-card-desc { font-size: 12px; color: var(--text-muted); }
+
+  /* --- EMPTY STATE --- */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state-text { font-size: 15px; }
+
+  /* --- TOAST --- */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 14px;
+    z-index: 9000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    max-width: 300px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: var(--green); color: var(--green); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+
+  /* --- NAV TABS in header --- */
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+
+  /* --- DIVIDER --- */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  /* --- SCROLLBAR --- */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<!-- ===== LANDING ===== -->
+<div id="landing-page">
+  <div class="landing-logo"><em>Metas</em></div>
+  <p class="landing-tagline">Juntos llegamos más lejos</p>
+  <div class="landing-cards">
+    <div class="landing-card" onclick="showModal('modal-login')">
+      <div class="landing-card-icon">👤</div>
+      <div class="landing-card-title">Entrar</div>
+      <div class="landing-card-desc">Ya tengo un perfil</div>
+    </div>
+    <div class="landing-card" onclick="showModal('modal-register')">
+      <div class="landing-card-icon">✦</div>
+      <div class="landing-card-title">Registrarme</div>
+      <div class="landing-card-desc">Crear mi perfil</div>
+    </div>
+  </div>
+  <button class="btn btn-ghost btn-sm" onclick="enterAsGuest()">Ver como invitado →</button>
+</div>
+
+<!-- ===== APP (after login) ===== -->
+<div id="app-page" class="page">
+
+  <!-- Header -->
+  <header>
+    <div class="logo"><span>metas</span></div>
+    <div class="nav-tabs" id="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('tab-home')">Inicio</button>
+      <button class="nav-tab" onclick="switchTab('tab-ranking')">Ranking</button>
+      <button class="nav-tab" onclick="switchTab('tab-profile')">Mi Perfil</button>
+      <button class="nav-tab" id="admin-tab" style="display:none" onclick="switchTab('tab-admin')">⚙ Admin</button>
+    </div>
+    <div class="header-right">
+      <div class="user-chip" id="user-chip" onclick="switchTab('tab-profile')">
+        <img id="header-avatar" src="" alt="avatar">
+        <span id="header-name"></span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+    </div>
+  </header>
+
+  <!-- TAB: HOME -->
+  <div id="tab-home" class="container page active">
+    <h1 class="section-title">Todas las <em style="font-style:italic;color:var(--gold)">Metas</em></h1>
+    <p class="section-subtitle">Progreso de toda la comunidad</p>
+    <div id="home-goals-container"></div>
+  </div>
+
+  <!-- TAB: RANKING -->
+  <div id="tab-ranking" class="container page">
+    <h1 class="section-title">Ranking</h1>
+    <p class="section-subtitle">Quiénes han cumplido más metas</p>
+    <div class="ranking-list" id="ranking-list"></div>
+  </div>
+
+  <!-- TAB: PROFILE -->
+  <div id="tab-profile" class="container page">
+    <div class="profile-hero" id="profile-hero">
+      <img class="profile-avatar" id="profile-avatar" src="" alt="avatar">
+      <div>
+        <div class="profile-name" id="profile-name"></div>
+        <div style="color:var(--text-muted);font-size:13px" id="profile-role"></div>
+        <div class="profile-stats" id="profile-stats"></div>
+      </div>
+      <div style="margin-left:auto">
+        <button class="btn btn-ghost btn-sm" onclick="showModal('modal-change-photo')">Cambiar foto</button>
+      </div>
+    </div>
+    <h2 style="font-family:Fraunces,serif;font-weight:300;font-size:20px;margin-bottom:16px">Mis Metas</h2>
+    <div class="goals-grid" id="my-goals-container"></div>
+  </div>
+
+  <!-- TAB: ADMIN -->
+  <div id="tab-admin" class="container page">
+    <h1 class="section-title">Panel <em style="font-style:italic;color:var(--gold)">Admin</em></h1>
+    <p class="section-subtitle">Gestiona metas y usuarios</p>
+
+    <div class="admin-grid">
+      <!-- CREATE GOAL -->
+      <div class="card">
+        <div class="admin-section-title">✦ Nueva Meta</div>
+        <div class="form-group">
+          <label>Título de la meta</label>
+          <input type="text" id="new-goal-title" placeholder="Ej: Correr 5km">
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="new-goal-desc" placeholder="Describe esta meta..."></textarea>
+        </div>
+        <button class="btn btn-gold" onclick="createGoal()">Crear Meta</button>
+      </div>
+
+      <!-- MANAGE USERS -->
+      <div class="card">
+        <div class="admin-section-title">👥 Usuarios</div>
+        <div class="users-list" id="admin-users-list"></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="admin-section-title">📋 Gestión de Metas</div>
+    <div id="admin-goals-list"></div>
+  </div>
+
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Login -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <div class="modal-title">Bienvenido de vuelta</div>
+    <div class="modal-subtitle">Ingresa solo con tu nombre de usuario</div>
+    <div class="form-group">
+      <label>Nombre de usuario</label>
+      <input type="text" id="login-name" placeholder="Tu nombre...">
+    </div>
+    <div id="login-error" style="color:var(--red);font-size:13px;margin-top:-8px;margin-bottom:12px;display:none"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-login')">Cancelar</button>
+      <button class="btn btn-gold" onclick="doLogin()">Entrar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Register -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <div class="modal-title">Crear perfil</div>
+    <div class="modal-subtitle">Solo necesitas un nombre y una foto</div>
+    <div class="avatar-upload">
+      <img class="avatar-preview" id="reg-avatar-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Crect width='72' height='72' fill='%231a1916'/%3E%3Ccircle cx='36' cy='28' r='14' fill='%232e2c29'/%3E%3Cellipse cx='36' cy='58' rx='22' ry='14' fill='%232e2c29'/%3E%3C/svg%3E" alt="preview">
+      <div>
+        <input type="file" id="reg-avatar-file" accept="image/*" style="display:none" onchange="previewAvatar('reg-avatar-file','reg-avatar-preview')">
+        <button class="avatar-upload-btn" onclick="document.getElementById('reg-avatar-file').click()">Subir foto</button>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px">JPG, PNG — opcional</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Nombre de usuario</label>
+      <input type="text" id="reg-name" placeholder="Tu nombre...">
+    </div>
+    <div id="reg-error" style="color:var(--red);font-size:13px;margin-top:-8px;margin-bottom:12px;display:none"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-register')">Cancelar</button>
+      <button class="btn btn-gold" onclick="doRegister()">Crear perfil →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login -->
+<div class="modal-overlay" id="modal-admin-login">
+  <div class="modal">
+    <div class="modal-title">Acceso Admin</div>
+    <div class="modal-subtitle">Ingresa con tu usuario administrador</div>
+    <div class="form-group">
+      <label>Nombre de admin</label>
+      <input type="text" id="admin-login-name" placeholder="admin1 o admin2">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="text" id="admin-login-pass" placeholder="Contraseña...">
+    </div>
+    <div id="admin-login-error" style="color:var(--red);font-size:13px;margin-top:-8px;margin-bottom:12px;display:none"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-admin-login')">Cancelar</button>
+      <button class="btn btn-gold" onclick="doAdminLogin()">Ingresar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Photo -->
+<div class="modal-overlay" id="modal-change-photo">
+  <div class="modal">
+    <div class="modal-title">Cambiar foto</div>
+    <div class="modal-subtitle">Actualiza tu foto de perfil</div>
+    <div class="avatar-upload">
+      <img class="avatar-preview" id="change-photo-preview" src="" alt="preview">
+      <div>
+        <input type="file" id="change-photo-file" accept="image/*" style="display:none" onchange="previewAvatar('change-photo-file','change-photo-preview')">
+        <button class="avatar-upload-btn" onclick="document.getElementById('change-photo-file').click()">Elegir imagen</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-change-photo')">Cancelar</button>
+      <button class="btn btn-gold" onclick="savePhotoChange()">Guardar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete User -->
+<div class="modal-overlay" id="modal-confirm-delete">
+  <div class="modal">
+    <div class="modal-title">Eliminar usuario</div>
+    <div class="modal-subtitle" id="confirm-delete-msg">¿Estás seguro?</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm-delete')">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmDeleteUser()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =========================================================
+// DATA LAYER — LocalStorage
+// =========================================================
+const ADMINS = [
+  { username: 'admin1', password: 'admin123' },
+  { username: 'admin2', password: 'admin456' }
+];
+
+function getData(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? def; }
+  catch { return def; }
+}
+function setData(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+}
+
+let users = getData('meta_users', []); // [{id, name, avatar, createdAt}]
+let goals = getData('meta_goals', []); // [{id, title, desc, createdAt, completions: {userId: bool}}]
+let currentUser = null; // {id, name, avatar, role}
+let deleteTargetId = null;
+
+function saveUsers() { setData('meta_users', users); }
+function saveGoals() { setData('meta_goals', goals); }
+
+// =========================================================
+// UTILS
+// =========================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+function showModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => {
+    if (e.target === el) closeModal(el.id);
+  });
+});
+
+// Enter key on login inputs
+document.getElementById('login-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('reg-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doRegister();
+});
+
+function previewAvatar(fileInputId, previewId) {
+  const file = document.getElementById(fileInputId).files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById(previewId).src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function defaultAvatar(name) {
+  const colors = ['#d4a84b','#5a9e6f','#6a8fbe','#b85c4a','#8f6ab8'];
+  const c = colors[name.charCodeAt(0) % colors.length];
+  const initials = name.slice(0,2).toUpperCase();
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" rx="40" fill="${c}"/><text x="40" y="46" text-anchor="middle" font-family="Fraunces,serif" font-size="28" fill="#0f0e0c" font-weight="700">${initials}</text></svg>`;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+// =========================================================
+// AUTH
+// =========================================================
+function enterAsGuest() {
+  currentUser = { id: '__guest__', name: 'Invitado', avatar: defaultAvatar('IN'), role: 'guest' };
+  enterApp();
+}
+
+function doLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = 'Escribe tu nombre'; errEl.style.display='block'; return; }
+
+  // Check admin
+  const adminMatch = ADMINS.find(a => a.username.toLowerCase() === name.toLowerCase());
+  if (adminMatch) {
+    document.getElementById('admin-login-name').value = name;
+    closeModal('modal-login');
+    showModal('modal-admin-login');
+    return;
+  }
+
+  const user = users.find(u => u.name.toLowerCase() === name.toLowerCase());
+  if (!user) { errEl.textContent = 'No existe ese perfil. ¿Quieres registrarte?'; errEl.style.display='block'; return; }
+  currentUser = { ...user, role: 'user' };
+  closeModal('modal-login');
+  document.getElementById('login-name').value = '';
+  enterApp();
+}
+
+function doAdminLogin() {
+  const name = document.getElementById('admin-login-name').value.trim();
+  const pass = document.getElementById('admin-login-pass').value.trim();
+  const errEl = document.getElementById('admin-login-error');
+  errEl.style.display = 'none';
+  const admin = ADMINS.find(a => a.username.toLowerCase() === name.toLowerCase() && a.password === pass);
+  if (!admin) { errEl.textContent = 'Credenciales incorrectas'; errEl.style.display='block'; return; }
+  currentUser = { id: admin.username, name: admin.username, avatar: defaultAvatar(admin.username), role: 'admin' };
+  closeModal('modal-admin-login');
+  document.getElementById('admin-login-pass').value = '';
+  enterApp();
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const errEl = document.getElementById('reg-error');
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = 'Ingresa un nombre'; errEl.style.display='block'; return; }
+  if (name.length < 2) { errEl.textContent = 'El nombre es muy corto'; errEl.style.display='block'; return; }
+  if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+    errEl.textContent = 'Ese nombre ya existe'; errEl.style.display='block'; return;
+  }
+  if (ADMINS.find(a => a.username.toLowerCase() === name.toLowerCase())) {
+    errEl.textContent = 'Ese nombre está reservado'; errEl.style.display='block'; return;
+  }
+
+  const fileInput = document.getElementById('reg-avatar-file');
+  const file = fileInput.files[0];
+
+  function finalize(avatarSrc) {
+    const newUser = { id: uid(), name, avatar: avatarSrc, createdAt: Date.now() };
+    users.push(newUser);
+    saveUsers();
+    currentUser = { ...newUser, role: 'user' };
+    closeModal('modal-register');
+    document.getElementById('reg-name').value = '';
+    fileInput.value = '';
+    document.getElementById('reg-avatar-preview').src = defaultAvatar('?');
+    toast('¡Perfil creado! Bienvenido/a ' + name);
+    enterApp();
+  }
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => finalize(e.target.result);
+    reader.readAsDataURL(file);
+  } else {
+    finalize(defaultAvatar(name));
+  }
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('app-page').classList.remove('active');
+  document.getElementById('landing-page').style.display = 'flex';
+}
+
+// =========================================================
+// APP ENTRY
+// =========================================================
+function enterApp() {
+  document.getElementById('landing-page').style.display = 'none';
+  const app = document.getElementById('app-page');
+  app.classList.add('active');
+
+  // Header
+  document.getElementById('header-avatar').src = currentUser.avatar;
+  document.getElementById('header-name').textContent = currentUser.name;
+
+  // Show admin tab
+  const adminTab = document.getElementById('admin-tab');
+  adminTab.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+
+  // Guest chip click → show login
+  if (currentUser.role === 'guest') {
+    document.getElementById('user-chip').onclick = () => showModal('modal-login');
+  }
+
+  switchTab('tab-home');
+  renderAll();
+}
+
+// =========================================================
+// TAB NAVIGATION
+// =========================================================
+function switchTab(tabId) {
+  document.querySelectorAll('#app-page > div.container, #app-page > div.page').forEach(el => {
+    el.classList.remove('active');
+  });
+  document.getElementById(tabId).classList.add('active');
+
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tabMap = {
+    'tab-home': 0, 'tab-ranking': 1, 'tab-profile': 2, 'tab-admin': 3
+  };
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = tabMap[tabId];
+  if (tabs[idx]) tabs[idx].classList.add('active');
+
+  if (tabId === 'tab-home') renderHome();
+  if (tabId === 'tab-ranking') renderRanking();
+  if (tabId === 'tab-profile') renderProfile();
+  if (tabId === 'tab-admin') renderAdmin();
+}
+
+function renderAll() {
+  renderHome();
+  renderRanking();
+  renderProfile();
+  if (currentUser.role === 'admin') renderAdmin();
+}
+
+// =========================================================
+// RENDER: HOME
+// =========================================================
+function renderHome() {
+  const container = document.getElementById('home-goals-container');
+  if (goals.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎯</div><div class="empty-state-text">No hay metas aún. Un administrador puede crear la primera.</div></div>`;
+    return;
+  }
+
+  const relevantUsers = users.filter(u => {
+    return goals.some(g => g.completions && g.completions[u.id] !== undefined);
+  });
+  // All users shown with their goals
+  let html = '';
+  const showUsers = users.length > 0 ? users : [];
+  
+  // Show all users and their goals
+  if (showUsers.length === 0) {
+    // Just show goals without user grouping
+    html = `<div class="goals-grid">` + goals.map(g => goalCardHTML(g, null)).join('') + `</div>`;
+  } else {
+    showUsers.forEach(u => {
+      const doneCount = goals.filter(g => g.completions && g.completions[u.id]).length;
+      html += `<div class="user-goals-section">
+        <div class="user-goals-header">
+          <img src="${u.avatar}" alt="${u.name}">
+          <div class="user-goals-name">${u.name}</div>
+          <div class="user-goals-count">${doneCount} / ${goals.length} completadas</div>
+        </div>
+        <div class="goals-grid">
+          ${goals.map(g => goalCardHTML(g, u.id)).join('')}
+        </div>
+      </div>`;
+    });
+  }
+  container.innerHTML = html;
+}
+
+function goalCardHTML(goal, userId) {
+  const done = userId !== null && goal.completions && goal.completions[userId] === true;
+  return `<div class="goal-card ${done ? 'done' : ''}">
+    <div class="goal-title">${goal.title}</div>
+    <div class="goal-desc">${goal.desc || ''}</div>
+    <span class="goal-status ${done ? 'done' : 'pending'}">
+      ${done ? '✓ Cumplida' : '◦ Pendiente'}
+    </span>
+  </div>`;
+}
+
+// =========================================================
+// RENDER: RANKING
+// =========================================================
+function renderRanking() {
+  const list = document.getElementById('ranking-list');
+  if (users.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏆</div><div class="empty-state-text">No hay usuarios registrados aún.</div></div>`;
+    return;
+  }
+
+  const ranked = users.map(u => {
+    const done = goals.filter(g => g.completions && g.completions[u.id]).length;
+    const total = goals.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    return { ...u, done, total, pct };
+  }).sort((a, b) => b.done - a.done || a.name.localeCompare(b.name));
+
+  const maxDone = ranked[0]?.done || 1;
+  list.innerHTML = ranked.map((u, i) => {
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+    return `<div class="ranking-item ${rankClass}">
+      <div class="rank-num">${medal || (i+1)}</div>
+      <img class="rank-avatar" src="${u.avatar}" alt="${u.name}">
+      <div class="rank-info">
+        <div class="rank-name">${u.name}</div>
+        <div class="rank-score">${u.done} meta${u.done!==1?'s':''} cumplida${u.done!==1?'s':''} de ${u.total}</div>
+      </div>
+      <div class="rank-bar-wrap">
+        <div class="rank-bar" style="width:${maxDone > 0 ? Math.round((u.done/maxDone)*100) : 0}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =========================================================
+// RENDER: PROFILE
+// =========================================================
+function renderProfile() {
+  if (!currentUser) return;
+  const isGuest = currentUser.role === 'guest';
+  
+  document.getElementById('profile-avatar').src = currentUser.avatar;
+  document.getElementById('profile-name').textContent = currentUser.name;
+  document.getElementById('profile-role').textContent =
+    currentUser.role === 'admin' ? '⚙ Administrador' :
+    isGuest ? '👁 Invitado' : '👤 Usuario';
+
+  // Change photo btn only for real users
+  const changePhtBtn = document.querySelector('#tab-profile .btn-ghost');
+  if (changePhtBtn) changePhtBtn.style.display = (isGuest || currentUser.role === 'admin') ? 'none' : 'inline-flex';
+
+  // Change photo preview init
+  document.getElementById('change-photo-preview').src = currentUser.avatar;
+
+  const myGoalsContainer = document.getElementById('my-goals-container');
+  const statsEl = document.getElementById('profile-stats');
+
+  if (isGuest || currentUser.role === 'admin') {
+    statsEl.innerHTML = '';
+    myGoalsContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-text">Las metas personales son para usuarios registrados.</div></div>`;
+    return;
+  }
+
+  const myDone = goals.filter(g => g.completions && g.completions[currentUser.id]).length;
+  const myPending = goals.length - myDone;
+
+  statsEl.innerHTML = `
+    <div class="profile-stat"><div class="profile-stat-num">${myDone}</div><div class="profile-stat-label">Cumplidas</div></div>
+    <div class="profile-stat"><div class="profile-stat-num">${myPending}</div><div class="profile-stat-label">Pendientes</div></div>
+    <div class="profile-stat"><div class="profile-stat-num">${goals.length}</div><div class="profile-stat-label">Total</div></div>
+  `;
+
+  if (goals.length === 0) {
+    myGoalsContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎯</div><div class="empty-state-text">No hay metas aún.</div></div>`;
+    return;
+  }
+
+  myGoalsContainer.innerHTML = goals.map(g => goalCardHTML(g, currentUser.id)).join('');
+}
+
+// =========================================================
+// RENDER: ADMIN
+// =========================================================
+function renderAdmin() {
+  if (currentUser.role !== 'admin') return;
+
+  // Users list
+  const usersList = document.getElementById('admin-users-list');
+  if (users.length === 0) {
+    usersList.innerHTML = `<div style="color:var(--text-dim);font-size:13px;padding:8px">No hay usuarios registrados.</div>`;
+  } else {
+    usersList.innerHTML = users.map(u => `
+      <div class="user-row">
+        <img src="${u.avatar}" alt="${u.name}">
+        <div class="user-row-name">${u.name}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${goals.filter(g=>g.completions&&g.completions[u.id]).length}/${goals.length} ✓</div>
+        <button class="btn btn-danger btn-sm" onclick="askDeleteUser('${u.id}','${u.name}')">Eliminar</button>
+      </div>
+    `).join('');
+  }
+
+  // Goals management
+  const goalsList = document.getElementById('admin-goals-list');
+  if (goals.length === 0) {
+    goalsList.innerHTML = `<div style="color:var(--text-dim);font-size:13px;padding:8px">No hay metas. Crea la primera arriba.</div>`;
+    return;
+  }
+
+  goalsList.innerHTML = goals.map(g => {
+    const totalDone = users.filter(u => g.completions && g.completions[u.id]).length;
+    return `<div class="goal-admin-row">
+      <div class="goal-admin-info">
+        <div class="goal-admin-title">${g.title}</div>
+        <div class="goal-admin-desc">${g.desc || 'Sin descripción'} · ${totalDone}/${users.length} usuarios completaron</div>
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+          ${users.map(u => {
+            const done = g.completions && g.completions[u.id];
+            return `<button class="btn btn-sm ${done ? 'btn-gold' : 'btn-ghost'}" onclick="toggleGoalUser('${g.id}','${u.id}')">
+              ${done ? '✓' : '○'} ${u.name}
+            </button>`;
+          }).join('')}
+          ${users.length === 0 ? '<span style="font-size:12px;color:var(--text-dim)">Sin usuarios aún</span>' : ''}
+        </div>
+      </div>
+      <div class="goal-admin-actions">
+        <button class="btn btn-danger btn-sm" onclick="deleteGoal('${g.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =========================================================
+// ADMIN ACTIONS
+// =========================================================
+function createGoal() {
+  const title = document.getElementById('new-goal-title').value.trim();
+  const desc = document.getElementById('new-goal-desc').value.trim();
+  if (!title) { toast('Escribe un título para la meta', 'error'); return; }
+
+  const newGoal = { id: uid(), title, desc, createdAt: Date.now(), completions: {} };
+  goals.push(newGoal);
+  saveGoals();
+  document.getElementById('new-goal-title').value = '';
+  document.getElementById('new-goal-desc').value = '';
+  toast('Meta "' + title + '" creada ✓');
+  renderAll();
+}
+
+function deleteGoal(goalId) {
+  goals = goals.filter(g => g.id !== goalId);
+  saveGoals();
+  toast('Meta eliminada');
+  renderAll();
+}
+
+function toggleGoalUser(goalId, userId) {
+  const goal = goals.find(g => g.id === goalId);
+  if (!goal) return;
+  if (!goal.completions) goal.completions = {};
+  goal.completions[userId] = !goal.completions[userId];
+  saveGoals();
+  renderAll();
+}
+
+function askDeleteUser(userId, userName) {
+  deleteTargetId = userId;
+  document.getElementById('confirm-delete-msg').textContent = `¿Eliminar el perfil de "${userName}"? Esta acción no se puede deshacer.`;
+  showModal('modal-confirm-delete');
+}
+
+function confirmDeleteUser() {
+  if (!deleteTargetId) return;
+  users = users.filter(u => u.id !== deleteTargetId);
+  // Remove from completions
+  goals.forEach(g => { if (g.completions) delete g.completions[deleteTargetId]; });
+  saveUsers();
+  saveGoals();
+  deleteTargetId = null;
+  closeModal('modal-confirm-delete');
+  toast('Usuario eliminado');
+  renderAll();
+}
+
+// =========================================================
+// CHANGE PHOTO
+// =========================================================
+function savePhotoChange() {
+  const file = document.getElementById('change-photo-file').files[0];
+  if (!file) { toast('Selecciona una imagen primero', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const newAvatar = e.target.result;
+    currentUser.avatar = newAvatar;
+    // Update in users array
+    const userIdx = users.findIndex(u => u.id === currentUser.id);
+    if (userIdx !== -1) {
+      users[userIdx].avatar = newAvatar;
+      saveUsers();
+    }
+    document.getElementById('header-avatar').src = newAvatar;
+    closeModal('modal-change-photo');
+    toast('Foto actualizada ✓');
+    renderAll();
+  };
+  reader.readAsDataURL(file);
+}
+
+// =========================================================
+// LANDING: show admin login link
+// =========================================================
+// Add subtle admin login link to landing
+document.addEventListener('DOMContentLoaded', () => {
+  const adminLink = document.createElement('button');
+  adminLink.className = 'btn btn-ghost btn-sm';
+  adminLink.style.marginTop = '8px';
+  adminLink.style.fontSize = '11px';
+  adminLink.style.color = 'var(--text-dim)';
+  adminLink.textContent = 'Admin →';
+  adminLink.onclick = () => showModal('modal-admin-login');
+  document.getElementById('landing-page').appendChild(adminLink);
+});
+</script>
+</body>
+</html>
