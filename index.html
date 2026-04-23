@@ -857,21 +857,21 @@ const ADMINS = [
   { username: 'admin2', password: 'admin456' }
 ];
 
-function getData(key, def) {
-  try { return JSON.parse(localStorage.getItem(key)) ?? def; }
-  catch { return def; }
+// Siempre leer/escribir directo del localStorage para que todos vean datos frescos
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem('meta_users')) || []; }
+  catch { return []; }
 }
-function setData(key, val) {
-  localStorage.setItem(key, JSON.stringify(val));
+function getGoals() {
+  try { return JSON.parse(localStorage.getItem('meta_goals')) || []; }
+  catch { return []; }
 }
+function saveUsers(arr) { localStorage.setItem('meta_users', JSON.stringify(arr)); }
+function saveGoals(arr) { localStorage.setItem('meta_goals', JSON.stringify(arr)); }
 
-let users = getData('meta_users', []); // [{id, name, avatar, createdAt}]
-let goals = getData('meta_goals', []); // [{id, title, desc, createdAt, completions: {userId: bool}}]
-let currentUser = null; // {id, name, avatar, role}
+// Variables en memoria solo para la sesión actual
+let currentUser = null;
 let deleteTargetId = null;
-
-function saveUsers() { setData('meta_users', users); }
-function saveGoals() { setData('meta_goals', goals); }
 
 // =========================================================
 // UTILS
@@ -948,7 +948,7 @@ function doLogin() {
     return;
   }
 
-  const user = users.find(u => u.name.toLowerCase() === name.toLowerCase());
+  const user = getUsers().find(u => u.name.toLowerCase() === name.toLowerCase());
   if (!user) { errEl.textContent = 'No existe ese perfil. ¿Quieres registrarte?'; errEl.style.display='block'; return; }
   currentUser = { ...user, role: 'user' };
   closeModal('modal-login');
@@ -975,7 +975,7 @@ function doRegister() {
   errEl.style.display = 'none';
   if (!name) { errEl.textContent = 'Ingresa un nombre'; errEl.style.display='block'; return; }
   if (name.length < 2) { errEl.textContent = 'El nombre es muy corto'; errEl.style.display='block'; return; }
-  if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+  if (getUsers().find(u => u.name.toLowerCase() === name.toLowerCase())) {
     errEl.textContent = 'Ese nombre ya existe'; errEl.style.display='block'; return;
   }
   if (ADMINS.find(a => a.username.toLowerCase() === name.toLowerCase())) {
@@ -987,8 +987,9 @@ function doRegister() {
 
   function finalize(avatarSrc) {
     const newUser = { id: uid(), name, avatar: avatarSrc, createdAt: Date.now() };
-    users.push(newUser);
-    saveUsers();
+    const currentUsers = getUsers();
+    currentUsers.push(newUser);
+    saveUsers(currentUsers);
     currentUser = { ...newUser, role: 'user' };
     closeModal('modal-register');
     document.getElementById('reg-name').value = '';
@@ -1073,33 +1074,28 @@ function renderAll() {
 // =========================================================
 function renderHome() {
   const container = document.getElementById('home-goals-container');
-  if (goals.length === 0) {
+  const goalsList = getGoals();
+  const usersList = getUsers();
+
+  if (goalsList.length === 0) {
     container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎯</div><div class="empty-state-text">No hay metas aún. Un administrador puede crear la primera.</div></div>`;
     return;
   }
 
-  const relevantUsers = users.filter(u => {
-    return goals.some(g => g.completions && g.completions[u.id] !== undefined);
-  });
-  // All users shown with their goals
   let html = '';
-  const showUsers = users.length > 0 ? users : [];
-  
-  // Show all users and their goals
-  if (showUsers.length === 0) {
-    // Just show goals without user grouping
-    html = `<div class="goals-grid">` + goals.map(g => goalCardHTML(g, null)).join('') + `</div>`;
+  if (usersList.length === 0) {
+    html = `<div class="goals-grid">` + goalsList.map(g => goalCardHTML(g, null)).join('') + `</div>`;
   } else {
-    showUsers.forEach(u => {
-      const doneCount = goals.filter(g => g.completions && g.completions[u.id]).length;
+    usersList.forEach(u => {
+      const doneCount = goalsList.filter(g => g.completions && g.completions[u.id]).length;
       html += `<div class="user-goals-section">
         <div class="user-goals-header">
           <img src="${u.avatar}" alt="${u.name}">
           <div class="user-goals-name">${u.name}</div>
-          <div class="user-goals-count">${doneCount} / ${goals.length} completadas</div>
+          <div class="user-goals-count">${doneCount} / ${goalsList.length} completadas</div>
         </div>
         <div class="goals-grid">
-          ${goals.map(g => goalCardHTML(g, u.id)).join('')}
+          ${goalsList.map(g => goalCardHTML(g, u.id)).join('')}
         </div>
       </div>`;
     });
@@ -1123,16 +1119,18 @@ function goalCardHTML(goal, userId) {
 // =========================================================
 function renderRanking() {
   const list = document.getElementById('ranking-list');
-  if (users.length === 0) {
+  const usersList = getUsers();
+  const goalsList = getGoals();
+
+  if (usersList.length === 0) {
     list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏆</div><div class="empty-state-text">No hay usuarios registrados aún.</div></div>`;
     return;
   }
 
-  const ranked = users.map(u => {
-    const done = goals.filter(g => g.completions && g.completions[u.id]).length;
-    const total = goals.length;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-    return { ...u, done, total, pct };
+  const ranked = usersList.map(u => {
+    const done = goalsList.filter(g => g.completions && g.completions[u.id]).length;
+    const total = goalsList.length;
+    return { ...u, done, total };
   }).sort((a, b) => b.done - a.done || a.name.localeCompare(b.name));
 
   const maxDone = ranked[0]?.done || 1;
@@ -1182,21 +1180,22 @@ function renderProfile() {
     return;
   }
 
-  const myDone = goals.filter(g => g.completions && g.completions[currentUser.id]).length;
-  const myPending = goals.length - myDone;
+  const goalsList = getGoals();
+  const myDone = goalsList.filter(g => g.completions && g.completions[currentUser.id]).length;
+  const myPending = goalsList.length - myDone;
 
   statsEl.innerHTML = `
     <div class="profile-stat"><div class="profile-stat-num">${myDone}</div><div class="profile-stat-label">Cumplidas</div></div>
     <div class="profile-stat"><div class="profile-stat-num">${myPending}</div><div class="profile-stat-label">Pendientes</div></div>
-    <div class="profile-stat"><div class="profile-stat-num">${goals.length}</div><div class="profile-stat-label">Total</div></div>
+    <div class="profile-stat"><div class="profile-stat-num">${goalsList.length}</div><div class="profile-stat-label">Total</div></div>
   `;
 
-  if (goals.length === 0) {
+  if (goalsList.length === 0) {
     myGoalsContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎯</div><div class="empty-state-text">No hay metas aún.</div></div>`;
     return;
   }
 
-  myGoalsContainer.innerHTML = goals.map(g => goalCardHTML(g, currentUser.id)).join('');
+  myGoalsContainer.innerHTML = goalsList.map(g => goalCardHTML(g, currentUser.id)).join('');
 }
 
 // =========================================================
@@ -1205,42 +1204,45 @@ function renderProfile() {
 function renderAdmin() {
   if (currentUser.role !== 'admin') return;
 
+  const usersList = getUsers();
+  const goalsList = getGoals();
+
   // Users list
-  const usersList = document.getElementById('admin-users-list');
-  if (users.length === 0) {
-    usersList.innerHTML = `<div style="color:var(--text-dim);font-size:13px;padding:8px">No hay usuarios registrados.</div>`;
+  const usersListEl = document.getElementById('admin-users-list');
+  if (usersList.length === 0) {
+    usersListEl.innerHTML = `<div style="color:var(--text-dim);font-size:13px;padding:8px">No hay usuarios registrados.</div>`;
   } else {
-    usersList.innerHTML = users.map(u => `
+    usersListEl.innerHTML = usersList.map(u => `
       <div class="user-row">
         <img src="${u.avatar}" alt="${u.name}">
         <div class="user-row-name">${u.name}</div>
-        <div style="font-size:12px;color:var(--text-muted)">${goals.filter(g=>g.completions&&g.completions[u.id]).length}/${goals.length} ✓</div>
-        <button class="btn btn-danger btn-sm" onclick="askDeleteUser('${u.id}','${u.name}')">Eliminar</button>
+        <div style="font-size:12px;color:var(--text-muted)">${goalsList.filter(g=>g.completions&&g.completions[u.id]).length}/${goalsList.length} ✓</div>
+        <button class="btn btn-danger btn-sm" onclick="askDeleteUser('${u.id}','${u.name.replace(/'/g,"\\'")}')">Eliminar</button>
       </div>
     `).join('');
   }
 
   // Goals management
-  const goalsList = document.getElementById('admin-goals-list');
-  if (goals.length === 0) {
-    goalsList.innerHTML = `<div style="color:var(--text-dim);font-size:13px;padding:8px">No hay metas. Crea la primera arriba.</div>`;
+  const goalsListEl = document.getElementById('admin-goals-list');
+  if (goalsList.length === 0) {
+    goalsListEl.innerHTML = `<div style="color:var(--text-dim);font-size:13px;padding:8px">No hay metas. Crea la primera arriba.</div>`;
     return;
   }
 
-  goalsList.innerHTML = goals.map(g => {
-    const totalDone = users.filter(u => g.completions && g.completions[u.id]).length;
+  goalsListEl.innerHTML = goalsList.map(g => {
+    const totalDone = usersList.filter(u => g.completions && g.completions[u.id]).length;
     return `<div class="goal-admin-row">
       <div class="goal-admin-info">
         <div class="goal-admin-title">${g.title}</div>
-        <div class="goal-admin-desc">${g.desc || 'Sin descripción'} · ${totalDone}/${users.length} usuarios completaron</div>
+        <div class="goal-admin-desc">${g.desc || 'Sin descripción'} · ${totalDone}/${usersList.length} usuarios completaron</div>
         <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
-          ${users.map(u => {
+          ${usersList.map(u => {
             const done = g.completions && g.completions[u.id];
             return `<button class="btn btn-sm ${done ? 'btn-gold' : 'btn-ghost'}" onclick="toggleGoalUser('${g.id}','${u.id}')">
               ${done ? '✓' : '○'} ${u.name}
             </button>`;
           }).join('')}
-          ${users.length === 0 ? '<span style="font-size:12px;color:var(--text-dim)">Sin usuarios aún</span>' : ''}
+          ${usersList.length === 0 ? '<span style="font-size:12px;color:var(--text-dim)">Sin usuarios aún</span>' : ''}
         </div>
       </div>
       <div class="goal-admin-actions">
@@ -1259,8 +1261,9 @@ function createGoal() {
   if (!title) { toast('Escribe un título para la meta', 'error'); return; }
 
   const newGoal = { id: uid(), title, desc, createdAt: Date.now(), completions: {} };
-  goals.push(newGoal);
-  saveGoals();
+  const goalsList = getGoals();
+  goalsList.push(newGoal);
+  saveGoals(goalsList);
   document.getElementById('new-goal-title').value = '';
   document.getElementById('new-goal-desc').value = '';
   toast('Meta "' + title + '" creada ✓');
@@ -1268,18 +1271,19 @@ function createGoal() {
 }
 
 function deleteGoal(goalId) {
-  goals = goals.filter(g => g.id !== goalId);
-  saveGoals();
+  const goalsList = getGoals().filter(g => g.id !== goalId);
+  saveGoals(goalsList);
   toast('Meta eliminada');
   renderAll();
 }
 
 function toggleGoalUser(goalId, userId) {
-  const goal = goals.find(g => g.id === goalId);
+  const goalsList = getGoals();
+  const goal = goalsList.find(g => g.id === goalId);
   if (!goal) return;
   if (!goal.completions) goal.completions = {};
   goal.completions[userId] = !goal.completions[userId];
-  saveGoals();
+  saveGoals(goalsList);
   renderAll();
 }
 
@@ -1291,11 +1295,12 @@ function askDeleteUser(userId, userName) {
 
 function confirmDeleteUser() {
   if (!deleteTargetId) return;
-  users = users.filter(u => u.id !== deleteTargetId);
+  const usersList = getUsers().filter(u => u.id !== deleteTargetId);
   // Remove from completions
-  goals.forEach(g => { if (g.completions) delete g.completions[deleteTargetId]; });
-  saveUsers();
-  saveGoals();
+  const goalsList = getGoals();
+  goalsList.forEach(g => { if (g.completions) delete g.completions[deleteTargetId]; });
+  saveUsers(usersList);
+  saveGoals(goalsList);
   deleteTargetId = null;
   closeModal('modal-confirm-delete');
   toast('Usuario eliminado');
@@ -1312,14 +1317,15 @@ function savePhotoChange() {
   reader.onload = e => {
     const newAvatar = e.target.result;
     currentUser.avatar = newAvatar;
-    // Update in users array
-    const userIdx = users.findIndex(u => u.id === currentUser.id);
+    const usersList = getUsers();
+    const userIdx = usersList.findIndex(u => u.id === currentUser.id);
     if (userIdx !== -1) {
-      users[userIdx].avatar = newAvatar;
-      saveUsers();
+      usersList[userIdx].avatar = newAvatar;
+      saveUsers(usersList);
     }
     document.getElementById('header-avatar').src = newAvatar;
     closeModal('modal-change-photo');
+    document.getElementById('change-photo-file').value = '';
     toast('Foto actualizada ✓');
     renderAll();
   };
